@@ -1,4 +1,4 @@
-export class GeneratedTokensDto {
+export class GeneratedAuthTokensDto {
   accessToken: string;
   refreshToken: string;
 }

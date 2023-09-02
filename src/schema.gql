@@ -3,8 +3,13 @@
 # ------------------------------------------------------
 
 type Mutation {
+  confirmEmail(confirmationToken: String!): NextStep!
   signIn(email: String!, password: String!): SignInSuccess!
-  signUp(email: String!, name: String!, password: String!): String!
+  signUp(email: String!, name: String!, password: String!): NextStep!
+}
+
+type NextStep {
+  hint: String!
 }
 
 type Query {

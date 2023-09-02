@@ -12,6 +12,12 @@ export class UserModel {
 
   @Prop({
     required: true,
+    default: false,
+  })
+  isEmailConfirmed: boolean;
+
+  @Prop({
+    required: true,
   })
   name: string;
 

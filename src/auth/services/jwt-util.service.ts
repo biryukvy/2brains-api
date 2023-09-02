@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { GeneratedTokensDto } from '../dto/generated-tokens.dto';
-import { JwtPayloadDto } from '../dto/jwt-payload.dto';
+import { GeneratedAuthTokensDto } from '../dto/generated-auth-tokens.dto';
+import { AuthJwtPayloadDto } from '../dto/auth-jwt-payload.dto';
 
 @Injectable()
 export class JwtUtilService {
@@ -9,7 +9,7 @@ export class JwtUtilService {
     private jwtService: JwtService,
   ) {}
 
-  async generateTokens(payload: JwtPayloadDto): Promise<GeneratedTokensDto> {
+  async generateAuthTokens(payload: AuthJwtPayloadDto): Promise<GeneratedAuthTokensDto> {
     const accessToken: string = await this.generateAccessToken(payload);
     const refreshToken: string = await this.generateRefreshToken(payload);
     return {
@@ -18,7 +18,7 @@ export class JwtUtilService {
     };
   }
 
-  async generateAccessToken(payload: JwtPayloadDto): Promise<string> {
+  async generateAccessToken(payload: AuthJwtPayloadDto): Promise<string> {
     return this.jwtService.signAsync(
       payload,
       {
@@ -28,7 +28,7 @@ export class JwtUtilService {
     );
   }
 
-  async generateRefreshToken(payload: JwtPayloadDto): Promise<string> {
+  async generateRefreshToken(payload: AuthJwtPayloadDto): Promise<string> {
     return this.jwtService.signAsync(
       payload,
       {
@@ -37,5 +37,6 @@ export class JwtUtilService {
       },
     );
   }
+
 }
 

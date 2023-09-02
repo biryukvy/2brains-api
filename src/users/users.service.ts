@@ -1,6 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
+import { IUpdateResult } from 'src/common/interfaces/update-result.interface';
 import { ObjId } from 'src/common/types/obj-id.type';
 import { UserDocument, UserModel } from './schemas/user.schema';
 
@@ -39,6 +40,14 @@ export class UsersService {
       throw new NotFoundException(errorMessage);
     }
     return foundUser;
+  }
+
+  async updateOneById(userId: ObjId, payload: Partial<UserDocument>): Promise<IUpdateResult> {
+    userId = new Types.ObjectId(userId);
+    return this.userModel.updateOne(
+      { _id: userId },
+      payload,
+    );
   }
 
 }

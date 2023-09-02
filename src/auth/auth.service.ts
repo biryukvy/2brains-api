@@ -3,12 +3,15 @@ import { GeneratedHashDto } from 'src/common/dto/generated-hash.dto';
 import { HashingSevice } from 'src/common/hashing.service';
 import { UserDocument } from 'src/users/schemas/user.schema';
 import { UsersService } from 'src/users/users.service';
-import { GeneratedTokensDto } from './dto/generated-tokens.dto';
-import { JwtPayloadDto } from './dto/jwt-payload.dto';
+import { GeneratedAuthTokensDto } from './dto/generated-auth-tokens.dto';
+import { AuthJwtPayloadDto } from './dto/auth-jwt-payload.dto';
 import { SignInSuccess } from './dto/sign-in-success.object';
 import { SignInInput } from './dto/sign-in.input';
 import { SignUpInput } from './dto/sign-up.input';
 import { JwtUtilService } from './services/jwt-util.service';
+import { ConfirmationsService } from 'src/confirmations/services/confirmations.service';
+import { ConfirmationType } from 'src/confirmations/confirmation-type.enum';
+import { ConfirmationDocument } from 'src/confirmations/schemas/confirmation.schema';
 
 @Injectable()
 export class AuthService {
@@ -16,35 +19,60 @@ export class AuthService {
     private readonly usersService: UsersService,
     private readonly hashingService: HashingSevice,
     private readonly jwtUtilService: JwtUtilService,
+    private readonly confirmationService: ConfirmationsService,
   ) {}
 
-  async signUp(signUpInput: SignUpInput): Promise<UserDocument> {
+  async signUp(signUpInput: SignUpInput): Promise<void> {
     const foundUser: UserDocument = await this.usersService.findOneByEmail(signUpInput.email);
     if (foundUser) {
       const errorMessage: string = 'User with email ' + signUpInput.email + ' already exists!';
       throw new ConflictException(errorMessage);
     }
     const { saltUsed, generatedHash }: GeneratedHashDto = this.hashingService.generatePasswordHash(signUpInput.password);
-    return this.usersService.createOne({
+  
+    const createdUser: UserDocument = await this.usersService.createOne({
       email: signUpInput.email,
       name: signUpInput.name,
       passwordHash: generatedHash,
       passwordSalt: saltUsed,
     });
+
+    const confirmationCode: string = this.hashingService.generateHash();
+    await this.confirmationService.createOne({
+      userId: createdUser._id,
+      token: confirmationCode,
+      type: ConfirmationType.Email,
+      value: signUpInput.email,
+    })
   }
 
   async signIn(signInInput: SignInInput): Promise<SignInSuccess> {
     const foundUser: UserDocument = await this.usersService.findOneByEmailOrFail(signInInput.email);
+    if (!foundUser.isEmailConfirmed) {
+      const errorMessage: string = 'To signIn, your email ' + signInInput.email + 'must be confirmed first!';
+      throw new BadRequestException(errorMessage);
+    }
+    
     const { generatedHash }: GeneratedHashDto = this.hashingService.generatePasswordHash(signInInput.password, foundUser.passwordSalt);
     if (foundUser.passwordHash !== generatedHash) {
       throw new BadRequestException();
     }
-    const jwtPayload: JwtPayloadDto = { sub: foundUser.id, email: foundUser.email };
-    const generatedTokens: GeneratedTokensDto = await this.jwtUtilService.generateTokens(jwtPayload);
+    const authJwtPayload: AuthJwtPayloadDto = { sub: foundUser.id, email: foundUser.email };
+    const authTokens: GeneratedAuthTokensDto = await this.jwtUtilService.generateAuthTokens(authJwtPayload);
     return {
-      accessToken: generatedTokens.accessToken,
-      refreshToken: generatedTokens.refreshToken,
+      accessToken: authTokens.accessToken,
+      refreshToken: authTokens.refreshToken,
       user: foundUser,
     };
+  }
+
+  async confirmEmail(confirmationToken: string): Promise<void> {
+    const confirmation: ConfirmationDocument = await this.confirmationService.findOneOrFail({
+      token: confirmationToken,
+    });
+    await this.usersService.updateOneById(confirmation.userId, {
+      isEmailConfirmed: true,
+    });
+    await this.confirmationService.deleteOneById(confirmation._id);
   }
 }

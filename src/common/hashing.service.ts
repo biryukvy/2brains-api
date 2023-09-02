@@ -4,14 +4,14 @@ import { GeneratedHashDto } from './dto/generated-hash.dto';
 
 @Injectable()
 export class HashingSevice {
-  generateSalt(): string {
-    const confirmationCodeLength: number = 20;
-    const randomNumberAsString: string = Math.random().toString();
-    return btoa(randomNumberAsString).slice(0, confirmationCodeLength);
+  generateHash(): string {
+    const hashStringLength: number = 6;
+    const input: string = Math.random().toString();
+    return btoa(input).slice(0, hashStringLength);
   }
 
   generatePasswordHash(password: string, salt?: string | undefined): GeneratedHashDto {
-    salt = salt || this.generateSalt();
+    salt = salt || this.generateHash();
     const algorithm: string = 'sha256';
     const outputEncoding: BinaryToTextEncoding = 'hex';
     const generatedHash: string = createHash(algorithm)
