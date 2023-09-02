@@ -6,6 +6,9 @@ import { join } from 'path';
 import { ApolloServerPluginLandingPageLocalDefault } from '@apollo/server/plugin/landingPage/default';
 import { TestResolver } from './test.resolver';
 import { MongooseModule } from '@nestjs/mongoose';
+import { AuthModule } from './auth/auth.module';
+import { CommonModule } from './common/common.module';
+import { UsersModule } from './users/users.module';
 
 @Module({
   imports: [
@@ -20,6 +23,9 @@ import { MongooseModule } from '@nestjs/mongoose';
     MongooseModule.forRoot(process.env.DB_CONNECT_URL, {
       dbName: process.env.DB_NAME
     }),
+    AuthModule,
+    CommonModule,
+    UsersModule,
   ],
   controllers: [],
   providers: [
