@@ -19,10 +19,6 @@ export class UsersService {
     return this.userModel.findById(userId);
   }
 
-  async findOneByEmail(email: string): Promise<UserDocument> {
-    return this.userModel.findOne({ email });
-  }
-
   async findOneByIdOrFail(userId: ObjId): Promise<UserDocument> {
     const foundUser: UserDocument = await this.userModel.findById(userId);
     if (!foundUser) {
@@ -31,4 +27,18 @@ export class UsersService {
     }
     return foundUser;
   }
+
+  async findOneByEmail(email: string): Promise<UserDocument> {
+    return this.userModel.findOne({ email });
+  }
+
+  async findOneByEmailOrFail(email: string): Promise<UserDocument> {
+    const foundUser: UserDocument = await this.userModel.findOne({ email });
+    if (!foundUser) {
+      const errorMessage: string = 'User with email: ' + email + ' is not found!' ;
+      throw new NotFoundException(errorMessage);
+    }
+    return foundUser;
+  }
+
 }

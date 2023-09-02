@@ -3,9 +3,22 @@
 # ------------------------------------------------------
 
 type Mutation {
+  signIn(email: String!, password: String!): SignInSuccess!
   signUp(email: String!, name: String!, password: String!): String!
 }
 
 type Query {
   test: Boolean!
+}
+
+type SignInSuccess {
+  accessToken: String!
+  refreshToken: String!
+  user: User!
+}
+
+type User {
+  email: String!
+  id: String!
+  name: String!
 }
