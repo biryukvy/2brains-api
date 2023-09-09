@@ -4,7 +4,7 @@ import { HashingSevice } from 'src/common/hashing.service';
 import { UserDocument } from 'src/users/schemas/user.schema';
 import { UsersService } from 'src/users/users.service';
 import { GeneratedAuthTokensDto } from './dto/generated-auth-tokens.dto';
-import { AuthJwtPayloadDto } from './dto/auth-jwt-payload.dto';
+import { JwtPayloadDto } from './dto/jwt-payload.dto';
 import { SignInSuccess } from './dto/sign-in-success.object';
 import { SignInInput } from './dto/sign-in.input';
 import { SignUpInput } from './dto/sign-up.input';
@@ -12,6 +12,7 @@ import { JwtUtilService } from './services/jwt-util.service';
 import { ConfirmationsService } from 'src/confirmations/services/confirmations.service';
 import { ConfirmationType } from 'src/confirmations/confirmation-type.enum';
 import { ConfirmationDocument } from 'src/confirmations/schemas/confirmation.schema';
+import { SessionsService } from 'src/sessions/services/sessions.service';
 
 @Injectable()
 export class AuthService {
@@ -20,6 +21,7 @@ export class AuthService {
     private readonly hashingService: HashingSevice,
     private readonly jwtUtilService: JwtUtilService,
     private readonly confirmationService: ConfirmationsService,
+    private readonly sessionsService: SessionsService,
   ) {}
 
   async signUp(signUpInput: SignUpInput): Promise<void> {
@@ -57,8 +59,11 @@ export class AuthService {
     if (foundUser.passwordHash !== generatedHash) {
       throw new BadRequestException();
     }
-    const authJwtPayload: AuthJwtPayloadDto = { sub: foundUser.id, email: foundUser.email };
+    const authJwtPayload: JwtPayloadDto = { sub: foundUser.id, email: foundUser.email };
     const authTokens: GeneratedAuthTokensDto = await this.jwtUtilService.generateAuthTokens(authJwtPayload);
+
+    await this.sessionsService.upsertRefreshTokenForUser(foundUser._id, authTokens.refreshToken);
+
     return {
       accessToken: authTokens.accessToken,
       refreshToken: authTokens.refreshToken,

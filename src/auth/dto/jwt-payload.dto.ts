@@ -1,4 +1,4 @@
-export class AuthJwtPayloadDto {
+export class JwtPayloadDto {
   sub: string;
   email: string;
 }
