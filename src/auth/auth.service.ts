@@ -1,6 +1,6 @@
 import { BadRequestException, ConflictException, Injectable } from '@nestjs/common';
 import { GeneratedHashDto } from 'src/common/dto/generated-hash.dto';
-import { HashingSevice } from 'src/common/hashing.service';
+import { HashingService } from 'src/common/services/hashing.service';
 import { UserDocument } from 'src/users/schemas/user.schema';
 import { UsersService } from 'src/users/users.service';
 import { GeneratedAuthTokensDto } from './dto/generated-auth-tokens.dto';
@@ -18,7 +18,7 @@ import { SessionsService } from 'src/sessions/services/sessions.service';
 export class AuthService {
   constructor(
     private readonly usersService: UsersService,
-    private readonly hashingService: HashingSevice,
+    private readonly hashingService: HashingService,
     private readonly jwtUtilService: JwtUtilService,
     private readonly confirmationService: ConfirmationsService,
     private readonly sessionsService: SessionsService,

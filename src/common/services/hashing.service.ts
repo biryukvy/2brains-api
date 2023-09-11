@@ -3,7 +3,7 @@ import { BinaryToTextEncoding, createHash } from 'crypto';
 import { GeneratedHashDto } from '../dto/generated-hash.dto';
 
 @Injectable()
-export class HashingSevice {
+export class HashingService {
   generateHash(): string {
     const hashStringLength: number = 6;
     const input: string = Math.random().toString();

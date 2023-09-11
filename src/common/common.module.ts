@@ -1,8 +1,8 @@
 import { Global, Module, Provider } from '@nestjs/common';
-import { HashingSevice } from './hashing.service';
+import { HashingService } from './services/hashing.service';
 
 const sharedProviders: Provider[] = [
-  HashingSevice,
+  HashingService,
 ];
 
 @Global()

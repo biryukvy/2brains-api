@@ -7,19 +7,19 @@ import {
 import { JwtService } from '@nestjs/jwt';
 import { Types } from 'mongoose';
 import { IRequest } from 'src/common/interfaces/request.interface';
-import { HashingSevice } from 'src/common/services/hashing.service';
 import { ObjId } from 'src/common/types/obj-id.type';
 import { SessionsService } from 'src/sessions/services/sessions.service';
 import { UserDocument } from 'src/users/schemas/user.schema';
 import { UsersService } from 'src/users/users.service';
 import { JwtPayloadDto } from '../dto/jwt-payload.dto';
 import { JwtUtilService } from '../services/jwt-util.service';
+import { HashingService } from 'src/common/services/hashing.service';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
   constructor(
     protected jwtService: JwtService,
-    protected hashingService: HashingSevice,
+    protected hashingService: HashingService,
     protected sessionsService: SessionsService,
     protected jwtUtilService: JwtUtilService,
     private usersService: UsersService,
@@ -32,8 +32,8 @@ export class AuthGuard implements CanActivate {
       throw new UnauthorizedException();
     }
     try {
-      const jwtPaylaod: JwtPayloadDto = await this.validateToken(token);
-      const userId: ObjId = new Types.ObjectId(jwtPaylaod.sub);
+      const jwtPayload: JwtPayloadDto = await this.validateToken(token);
+      const userId: ObjId = new Types.ObjectId(jwtPayload.sub);
       const user: UserDocument = await this.usersService.findOneById(userId);
       request.user = user;
     } catch {
