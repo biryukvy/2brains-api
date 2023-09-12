@@ -1,5 +1,5 @@
 import { ArgsType, Field } from '@nestjs/graphql';
-import { IsEmail } from 'class-validator';
+import { IsEmail, IsStrongPassword } from 'class-validator';
 
 @ArgsType()
 export class SignInInput {
@@ -7,6 +7,7 @@ export class SignInInput {
   @Field(type => String)
   email: string;
 
+  @IsStrongPassword()
   @Field(type => String)
   password: string;
 }
