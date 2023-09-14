@@ -3,6 +3,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { UserModel, UserSchema } from './schemas/user.schema';
 import { usersCollectionName } from './users.contants';
 import { UsersService } from './users.service';
+import { UsersResolver } from './resolvers/users.resolver';
 
 const sharedProviders: Provider[] = [
   UsersService,
@@ -20,6 +21,7 @@ const sharedProviders: Provider[] = [
   ],
   providers: [
     ...sharedProviders,
+    UsersResolver,
   ],
   exports: [
     ...sharedProviders,
