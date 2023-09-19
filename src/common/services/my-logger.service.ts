@@ -1,3 +1,5 @@
+import { LoggerService } from '@nestjs/common';
+
 export class MyLogger implements LoggerService {
   /**
    * Write a 'log' level log.
