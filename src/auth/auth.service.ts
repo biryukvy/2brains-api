@@ -13,6 +13,7 @@ import { ConfirmationsService } from 'src/confirmations/services/confirmations.s
 import { ConfirmationType } from 'src/confirmations/confirmation-type.enum';
 import { ConfirmationDocument } from 'src/confirmations/schemas/confirmation.schema';
 import { SessionsService } from 'src/sessions/services/sessions.service';
+import { RenewTokensSuccess } from './dto/renew-tokens-success.object';
 
 @Injectable()
 export class AuthService {
@@ -79,5 +80,16 @@ export class AuthService {
       isEmailConfirmed: true,
     });
     await this.confirmationService.deleteOneById(confirmation._id);
+  }
+
+  async renewTokens(user: UserDocument): Promise<RenewTokensSuccess> {
+    const payload: JwtPayloadDto = { sub: user.id, email: user.email };
+    const tokens: GeneratedAuthTokensDto = await this.jwtUtilService.generateAuthTokens(payload);
+    const refreshTokenHash: string = this.hashingService.generateRefreshTokenHash(tokens.refreshToken);
+    await this.sessionsService.upsertRefreshTokenForUser(user._id, refreshTokenHash); 
+    return {
+      accessToken: tokens.accessToken, 
+      refreshToken: tokens.refreshToken,
+    };
   }
 }

@@ -1,10 +1,14 @@
-import { Args, Mutation, Resolver } from '@nestjs/graphql';
+import { Args, Context, Mutation, Resolver } from '@nestjs/graphql';
 import { NextStep } from 'src/common/dto/next-step.object';
 import { AuthService } from './auth.service';
 import { EmailConfirmationInput } from './dto/email-confirmation.input';
 import { SignInSuccess } from './dto/sign-in-success.object';
 import { SignInInput } from './dto/sign-in.input';
 import { SignUpInput } from './dto/sign-up.input';
+import { RenewTokensGuard } from './guards/renew-tokens.guard';
+import { UseGuards } from '@nestjs/common';
+import { RenewTokensSuccess } from './dto/renew-tokens-success.object';
+import { IRequest } from 'src/common/interfaces/request.interface';
 
 @Resolver()
 export class AuthResolver {
@@ -39,5 +43,13 @@ export class AuthResolver {
     return {
       hint,
     };
+  }
+
+  @UseGuards(RenewTokensGuard)
+  @Mutation(returns => RenewTokensSuccess)
+  async renewTokens(
+    @Context('req') req: IRequest,
+  ): Promise<RenewTokensSuccess> {
+    return this.authService.renewTokens(req.user);
   }
 }

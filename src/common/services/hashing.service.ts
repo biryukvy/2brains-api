@@ -25,5 +25,12 @@ export class HashingService {
     };
   }
 
-  
+  generateRefreshTokenHash(token: string): string {
+    const algorithm: string = 'sha256';
+    const outputEncoding: BinaryToTextEncoding = 'hex';
+    return createHash(algorithm)
+      .update(token)
+      .update(process.env.JWT_REFRESH_SECRET)
+      .digest(outputEncoding);
+  }
 }
