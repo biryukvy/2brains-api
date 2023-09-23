@@ -49,4 +49,10 @@ export class SessionsService {
       _id: confirmationId,
     });
   }
+
+  async deleteAllForUser(userId: ObjId): Promise<IDeleteResult> {
+    return this.sessionModel.deleteMany({
+      userId,
+    });
+  }
 }

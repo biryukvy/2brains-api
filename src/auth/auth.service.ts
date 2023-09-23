@@ -14,6 +14,7 @@ import { ConfirmationType } from 'src/confirmations/confirmation-type.enum';
 import { ConfirmationDocument } from 'src/confirmations/schemas/confirmation.schema';
 import { SessionsService } from 'src/sessions/services/sessions.service';
 import { RenewTokensSuccess } from './dto/renew-tokens-success.object';
+import { ObjId } from 'src/common/types/obj-id.type';
 
 @Injectable()
 export class AuthService {
@@ -91,5 +92,9 @@ export class AuthService {
       accessToken: tokens.accessToken, 
       refreshToken: tokens.refreshToken,
     };
+  }
+
+  async logoutUser(userId: ObjId): Promise<void> {
+    await this.sessionsService.deleteAllForUser(userId);
   }
 }

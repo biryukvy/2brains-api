@@ -9,6 +9,7 @@ import { RenewTokensGuard } from './guards/renew-tokens.guard';
 import { UseGuards } from '@nestjs/common';
 import { RenewTokensSuccess } from './dto/renew-tokens-success.object';
 import { IRequest } from 'src/common/interfaces/request.interface';
+import { AuthGuard } from './guards/auth.guard';
 
 @Resolver()
 export class AuthResolver {
@@ -51,5 +52,14 @@ export class AuthResolver {
     @Context('req') req: IRequest,
   ): Promise<RenewTokensSuccess> {
     return this.authService.renewTokens(req.user);
+  }
+
+  @UseGuards(AuthGuard)
+  @Mutation(returns => Boolean)
+  async logout(
+    @Context('req') req: IRequest,
+  ): Promise<boolean> {
+    await this.authService.logoutUser(req.user._id);
+    return true;
   }
 }
